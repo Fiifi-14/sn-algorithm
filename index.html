@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SN Registry</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#0d1117;--paper:#f5f3ee;--cream:#ede9e1;--gold:#c9a84c;--gold2:#e8c96a;--teal:#1a6b6b;--teal2:#22908f;--red:#c0392b;--muted:#7a7570;--border:#d6d0c6;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
+
+/* LOGIN */
+#loginScreen{display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--ink);position:relative;overflow:hidden}
+#loginScreen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-55deg,transparent,transparent 28px,rgba(201,168,76,.04) 28px,rgba(201,168,76,.04) 29px)}
+.login-box{background:var(--paper);border-radius:20px;padding:48px 44px;max-width:480px;width:92%;box-shadow:0 40px 100px rgba(0,0,0,.45);position:relative;z-index:1}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:30px}
+.login-badge{width:42px;height:42px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:500;color:var(--ink)}
+.login-brand{font-family:var(--display);font-weight:800;font-size:20px}
+.login-brand span{color:var(--teal)}
+.login-heading{font-family:var(--display);font-size:26px;font-weight:800;margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;font-weight:300}
+.lfield{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.lfield label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lfield input{border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-family:var(--sans);font-size:14px;color:var(--ink);outline:none;background:#fff;transition:border-color .2s}
+.lfield input:focus{border-color:var(--teal)}
+.lfield input.err{border-color:var(--red)!important}
+.lfield small{font-size:11px;color:var(--muted);line-height:1.6;margin-top:2px}
+.lfield small a{color:var(--teal);text-decoration:underline}
+.btn-login{width:100%;background:var(--ink);color:var(--paper);border:none;border-radius:10px;padding:14px;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s,transform .12s}
+.btn-login:hover:not(:disabled){background:#1e2d3d;transform:translateY(-1px)}
+.btn-login:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.login-note{margin-top:20px;background:var(--cream);border-radius:10px;padding:16px 18px;font-size:12px;color:var(--muted);font-family:var(--mono);line-height:2;border:1px solid var(--border)}
+.login-note strong{color:var(--teal)}
+.login-note .step{display:flex;gap:10px;align-items:flex-start;margin-bottom:4px}
+.login-note .step-num{background:var(--teal);color:#fff;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.login-err{display:none;margin-top:14px;background:#fff0f0;border:1px solid #e74c3c;border-radius:8px;padding:11px 14px;font-size:12px;color:var(--red);font-family:var(--mono)}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.script-code{background:#1a1f27;border-radius:8px;padding:14px 16px;font-family:var(--mono);font-size:11px;color:#a8d8a8;line-height:1.8;margin-top:8px;overflow-x:auto;white-space:pre}
+
+/* APP */
+#app{display:none}
+header{background:var(--ink);color:var(--paper);padding:0 40px;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold)}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-badge{width:34px;height:34px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--ink);font-weight:500}
+.logo-text{font-family:var(--display);font-weight:800;font-size:17px}
+.logo-text span{color:var(--gold)}
+.header-right{display:flex;align-items:center;gap:14px}
+.sender-badge{background:rgba(201,168,76,.13);border:1px solid rgba(201,168,76,.28);border-radius:20px;padding:5px 14px;font-family:var(--mono);font-size:11px;color:var(--gold);letter-spacing:.04em;display:flex;align-items:center;gap:7px}
+.sender-dot{width:7px;height:7px;background:#4caf50;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-logout{background:none;border:1px solid rgba(245,243,238,.2);border-radius:6px;color:rgba(245,243,238,.5);padding:5px 13px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+main{max-width:1060px;margin:0 auto;padding:44px 32px 80px}
+.page-title{font-family:var(--display);font-size:36px;font-weight:800;line-height:1.05;margin-bottom:6px}
+.page-title em{font-style:normal;color:var(--teal)}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:38px;font-weight:300}
+.form-card{background:var(--ink);color:var(--paper);border-radius:16px;padding:34px 38px;margin-bottom:38px;box-shadow:0 20px 60px rgba(13,17,23,.18);position:relative;overflow:hidden}
+.form-card::before{content:'NEW REGISTRATION';position:absolute;top:20px;right:24px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:rgba(245,243,238,.1)}
+.form-card-label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:600px){.input-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,243,238,.4)}
+.field input,.field select{background:rgba(245,243,238,.07);border:1.5px solid rgba(245,243,238,.14);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:var(--paper);outline:none;transition:border-color .2s,background .2s;width:100%}
+.field input::placeholder{color:rgba(245,243,238,.25)}
+.field input:focus,.field select:focus{border-color:var(--gold);background:rgba(201,168,76,.07)}
+.field input.err{border-color:var(--red)!important}
+.field select option{background:#1a1f27}
+.btn-row{margin-top:16px}
+.btn-register{background:var(--gold);color:var(--ink);border:none;border-radius:8px;padding:13px 28px;font-family:var(--display);font-size:14px;font-weight:700;cursor:pointer;transition:background .18s,transform .12s,box-shadow .18s;box-shadow:0 4px 16px rgba(201,168,76,.28);letter-spacing:.04em;display:inline-flex;align-items:center;gap:8px}
+.btn-register:hover:not(:disabled){background:var(--gold2);transform:translateY(-1px)}
+.btn-register:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.spinner{width:15px;height:15px;border:2px solid rgba(13,17,23,.25);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.email-preview{display:none;margin-top:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:16px 18px}
+.preview-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-family:var(--mono)}
+.preview-msg{color:rgba(245,243,238,.85);font-size:13px;line-height:1.8;font-family:var(--mono)}
+.preview-msg strong{color:var(--gold2)}
+.flash{display:none;margin-top:14px;border:1px solid;border-radius:8px;padding:12px 15px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;animation:fadeIn .3s ease;line-height:1.7}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.stats-row{display:flex;gap:13px;margin-bottom:24px;flex-wrap:wrap}
+.stat-box{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:13px 20px;flex:1;min-width:95px}
+.stat-val{font-family:var(--display);font-size:24px;font-weight:800;color:var(--teal);line-height:1}
+.stat-lbl{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.db-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px}
+.db-title{font-family:var(--display);font-size:19px;font-weight:700}
+.db-count{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--cream);border:1px solid var(--border);padding:4px 12px;border-radius:20px;letter-spacing:.06em}
+.db-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-sm{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:7px 14px;border-radius:6px;cursor:pointer;border:1.5px solid;transition:all .16s;font-weight:500}
+.btn-export{border-color:var(--teal);color:var(--teal);background:transparent}
+.btn-export:hover{background:var(--teal);color:#fff}
+.btn-clear{border-color:var(--red);color:var(--red);background:transparent}
+.btn-clear:hover{background:var(--red);color:#fff}
+.search-wrap{display:flex;margin-bottom:14px}
+.search-wrap input{flex:1;border:1.5px solid var(--border);border-right:none;border-radius:8px 0 0 8px;padding:10px 14px;font-family:var(--sans);font-size:13px;background:#fff;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--teal)}
+.sicon{background:var(--cream);border:1.5px solid var(--border);border-radius:0 8px 8px 0;padding:0 14px;display:flex;align-items:center;color:var(--muted);font-size:13px}
+.table-wrap{border-radius:12px;overflow:hidden;border:1.5px solid var(--border);box-shadow:0 4px 24px rgba(13,17,23,.07);background:#fff;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:780px}
+thead tr{background:var(--ink);color:var(--paper)}
+thead th{padding:12px 14px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--cream);transition:background .12s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#faf8f4}
+tbody td{padding:11px 14px;vertical-align:middle}
+.td-num{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.td-name{font-weight:500}
+.td-email{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.sn-badge{display:inline-flex;align-items:center;gap:6px;background:#f0f7f7;border:1px solid #b2dada;color:var(--teal);padding:4px 11px;border-radius:6px;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.1em;cursor:pointer;transition:background .15s;white-space:nowrap}
+.sn-badge:hover{background:#d9efef}
+.copy-icon{font-size:10px;opacity:.5}
+.td-date{color:var(--muted);font-size:11px;font-family:var(--mono)}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase}
+.status-active{background:#d4f0e8;color:#1a7a56}
+.status-inactive{background:#fde8e8;color:#a02020}
+.mail-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;font-family:var(--mono);letter-spacing:.04em;white-space:nowrap}
+.mail-sent{background:#d4f0e8;color:#1a7a56}
+.mail-failed{background:#fde8e8;color:#a02020}
+.mail-pending{background:#f5f0e0;color:#8a6e20}
+.btn-retry{background:none;border:none;color:var(--teal);font-family:var(--mono);font-size:10px;cursor:pointer;text-decoration:underline;padding:0 0 0 4px}
+.btn-del{background:none;border:none;color:#ccc;font-size:14px;cursor:pointer;border-radius:4px;padding:2px 5px;transition:color .15s,background .15s}
+.btn-del:hover{color:var(--red);background:#fef0f0}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:42px;margin-bottom:14px;opacity:.3}
+.empty-state p{font-size:13px;font-weight:300}
+@keyframes rowIn{from{background:rgba(201,168,76,.2)}to{background:transparent}}
+.row-new{animation:rowIn 1.6s ease forwards}
+.copied-tip{display:none;position:fixed;background:var(--ink);color:var(--gold);font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:6px;pointer-events:none;z-index:9999;letter-spacing:.08em}
+@media(max-width:640px){main{padding:24px 14px 60px}header{padding:0 16px}.form-card{padding:22px 16px}.page-title{font-size:26px}.login-box{padding:32px 22px}}
+</style>
+</head>
+<body>
+<div class="copied-tip" id="copiedTip">Copied!</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-badge">SN</div>
+      <div class="login-brand">Serial<span>Registry</span></div>
+    </div>
+    <h2 class="login-heading">Sign In</h2>
+    <p class="login-sub">Enter your Gmail and your personal Apps Script URL. Emails will be sent directly from your Gmail account.</p>
+
+    <div class="lfield">
+      <label>Your Gmail Address</label>
+      <input type="email" id="lEmail" placeholder="yourname@gmail.com" autocomplete="email"/>
+    </div>
+    <div class="lfield">
+      <label>Your Google Apps Script URL</label>
+      <input type="url" id="lScript" placeholder="https://script.google.com/macros/s/…/exec"/>
+      <small>Don't have one yet? Follow the 3 steps below — takes 2 minutes.</small>
+    </div>
+
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">
+      <span id="loginTxt">Sign In &amp; Connect Gmail →</span>
+      <span class="spinner" id="loginSpin"></span>
+    </button>
+    <div class="login-err" id="loginErr"></div>
+
+    <div class="divider"></div>
+
+    <div class="login-note">
+      <strong>First time? Get your Script URL in 3 steps:</strong><br><br>
+      <div class="step"><span class="step-num">1</span><span>Go to <strong>script.google.com</strong> → New Project → delete existing code and paste the script below</span></div>
+      <div class="step"><span class="step-num">2</span><span>Click <strong>Deploy → New Deployment → Web App</strong> → set "Who has access" to <strong>Anyone</strong> → Deploy</span></div>
+      <div class="step"><span class="step-num">3</span><span>Copy the <strong>Web App URL</strong> and paste it above</span></div>
+      <br>
+      <strong>Paste this script in step 1:</strong>
+      <div class="script-code">function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  GmailApp.sendEmail(
+    data.to_email,
+    "Your Unique Serial Number",
+    "Congratulations " + data.to_name +
+    ", this is your unique code: " + data.serial_number
+  );
+  return ContentService
+    .createTextOutput(JSON.stringify({status:"sent"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="logo">
+      <div class="logo-badge">SN</div>
+      <div class="logo-text">Serial<span>Registry</span></div>
+    </div>
+    <div class="header-right">
+      <div class="sender-badge">
+        <span class="sender-dot"></span>
+        <span id="senderLabel">—</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-title">Register &amp; Notify<br><em>Students via Gmail</em></h1>
+    <p class="page-sub">Enter a student's details — a unique SN is generated and emailed to them immediately from your Gmail.</p>
+
+    <div class="form-card">
+      <div class="form-card-label">▸ New Student Registration</div>
+      <div class="input-grid">
+        <div class="field">
+          <label>Full Name *</label>
+          <input type="text" id="iName" placeholder="e.g. Alice Johnson" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>Student Email *</label>
+          <input type="email" id="iEmail" placeholder="e.g. alice@example.com" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>Course</label>
+          <select id="iCourse">
+            <option value="">— Select Course —</option>
+            <option>Product Management</option>
+            <option>UIUX</option>
+            <option>Data Analysis</option>
+            <option>Product Design</option>
+            <option>Front End Development</option>
+            <option>Back End Development</option>
+            <option>Digital Marketing</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="iStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="email-preview" id="emailPreview">
+        <div class="preview-label">✉ Email preview — what the student will receive</div>
+        <div class="preview-msg">
+          Congratulations <strong id="prevName">—</strong>,<br>
+          this is your unique code: <strong id="prevSN" style="letter-spacing:2px">—</strong>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-register" id="btnReg" onclick="register()">
+          <span id="btnTxt">Generate &amp; Send Email →</span>
+          <span class="spinner" id="btnSpin"></span>
+        </button>
+      </div>
+      <div class="flash" id="flash"></div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val" id="sTotal">0</div><div class="stat-lbl">Total</div></div>
+      <div class="stat-box"><div class="stat-val" id="sActive" style="color:#1a7a56">0</div><div class="stat-lbl">Active</div></div>
+      <div class="stat-box"><div class="stat-val" id="sEmails" style="color:var(--teal)">0</div><div class="stat-lbl">Emails Sent</div></div>
+      <div class="stat-box"><div class="stat-val" id="sToday" style="color:var(--gold)">0</div><div class="stat-lbl">Today</div></div>
+    </div>
+
+    <div class="db-header">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <h2 class="db-title">Registry Database</h2>
+        <span class="db-count" id="dbCount">0 records</span>
+      </div>
+      <div class="db-actions">
+        <button class="btn-sm btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn-sm btn-clear" onclick="clearAll()">✕ Clear All</button>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <input type="text" id="srch" placeholder="Search by name, email, SN or course…" oninput="render()"/>
+      <div class="sicon">⌕</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Full Name</th><th>Student Email</th><th>Serial Number</th><th>Course</th><th>Status</th><th>Email</th><th>Date</th><th></th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty-state" id="empty">
+        <div class="empty-icon">🗂</div>
+        <p>No records yet — register a student above to get started.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+let SESSION = JSON.parse(sessionStorage.getItem('snSession')||'null');
+let DB = JSON.parse(localStorage.getItem('snreg')||'[]');
+
+const ALPHA='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function fnv1a(s){let h=0x811c9dc5>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h;}
+function genSN(name){
+  const used=new Set(DB.map(r=>r.sn));let sn,t=0;
+  do{const salt=name.trim().toLowerCase()+'|'+Date.now()+'|'+Math.random()+'|'+t;
+    let h=fnv1a(salt),c='';for(let i=0;i<7;i++){c+=ALPHA[h%ALPHA.length];h=fnv1a(h.toString(16)+i);}
+    sn='SN'+c;t++;}while(used.has(sn)&&t<500);
+  return sn;
+}
+
+// ── LOGIN ──
+function doLogin(){
+  const email = document.getElementById('lEmail').value.trim();
+  const scriptUrl = document.getElementById('lScript').value.trim();
+  const err = document.getElementById('loginErr');
+  err.style.display='none';
+  document.getElementById('lEmail').classList.remove('err');
+  document.getElementById('lScript').classList.remove('err');
+
+  let valid = true;
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    document.getElementById('lEmail').classList.add('err'); valid=false;}
+  if(!scriptUrl||!scriptUrl.includes('script.google.com')){
+    document.getElementById('lScript').classList.add('err'); valid=false;}
+  if(!valid){err.textContent='Please enter a valid Gmail and a Google Apps Script URL.';err.style.display='block';return;}
+
+  SESSION={email, scriptUrl};
+  sessionStorage.setItem('snSession', JSON.stringify(SESSION));
+  showApp();
+}
+
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('senderLabel').textContent=SESSION.email;
+  document.getElementById('iName').addEventListener('input', updatePreview);
+  render(); stats();
+}
+
+function logout(){
+  if(!confirm('Sign out?'))return;
+  sessionStorage.removeItem('snSession');
+  SESSION=null;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+// ── PREVIEW ──
+let previewSN='';
+function updatePreview(){
+  const name=document.getElementById('iName').value.trim();
+  const prev=document.getElementById('emailPreview');
+  if(name){
+    if(!previewSN)previewSN=genSN(name+'_prev');
+    document.getElementById('prevName').textContent=name;
+    document.getElementById('prevSN').textContent=previewSN;
+    prev.style.display='block';
+  }else{prev.style.display='none';previewSN='';}
+}
+
+// ── SEND EMAIL via user's own script ──
+async function sendEmail(rec){
+  try{
+    const res=await fetch(SESSION.scriptUrl,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({to_email:rec.email,to_name:rec.name,serial_number:rec.sn,course:rec.course})
+    });
+    const json=await res.json();
+    return json.status==='sent'?'sent':'failed';
+  }catch(e){console.error(e);return'failed';}
+}
+
+// ── REGISTER ──
+async function register(){
+  const name=document.getElementById('iName').value.trim();
+  const email=document.getElementById('iEmail').value.trim();
+  const course=document.getElementById('iCourse').value;
+  const status=document.getElementById('iStatus').value;
+
+  ['iName','iEmail'].forEach(id=>document.getElementById(id).classList.remove('err'));
+  let ok=true;
+  if(!name){document.getElementById('iName').classList.add('err');ok=false;}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){document.getElementById('iEmail').classList.add('err');ok=false;}
+  if(!ok){flash('Please enter the student\'s full name and a valid email.','err');return;}
+  if(DB.find(r=>r.email.toLowerCase()===email.toLowerCase())){flash('This email is already registered.','err');return;}
+
+  const btn=document.getElementById('btnReg'),txt=document.getElementById('btnTxt'),sp=document.getElementById('btnSpin');
+  btn.disabled=true;txt.textContent='Sending email…';sp.style.display='block';
+
+  const sn=genSN(name);
+  const now=new Date();
+  const rec={id:crypto.randomUUID(),name,email,sn,course:course||'—',status,
+    mailStatus:'pending',sender:SESSION.email,
+    date:now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}),
+    dateRaw:now.toDateString()};
+
+  rec.mailStatus=await sendEmail(rec);
+  DB.unshift(rec);save();render();stats();
+
+  if(rec.mailStatus==='sent'){
+    flash('✓ '+esc(name)+' registered as '+sn+' — Email sent to '+esc(email)+' ✓','ok');
+  }else{
+    flash('Registered '+sn+' but email failed. Check your Apps Script is deployed with access set to "Anyone".','err');
+  }
+
+  document.getElementById('iName').value='';
+  document.getElementById('iEmail').value='';
+  document.getElementById('iCourse').value='';
+  document.getElementById('iStatus').value='Active';
+  document.getElementById('emailPreview').style.display='none';
+  previewSN='';
+  btn.disabled=false;txt.innerHTML='Generate &amp; Send Email →';sp.style.display='none';
+  setTimeout(()=>{const r=document.querySelector('#tbody tr');if(r)r.classList.add('row-new');},60);
+}
+
+async function resend(id){
+  const rec=DB.find(r=>r.id===id);if(!rec)return;
+  rec.mailStatus=await sendEmail(rec);save();render();stats();
+}
+
+function delRec(id){DB=DB.filter(r=>r.id!==id);save();render();stats();}
+function clearAll(){if(!DB.length)return;if(!confirm('Delete all '+DB.length+' records?'))return;DB=[];save();render();stats();}
+
+function copySN(sn,e){
+  navigator.clipboard.writeText(sn).catch(()=>{});
+  const t=document.getElementById('copiedTip');
+  t.style.display='block';t.style.left=(e.clientX+12)+'px';t.style.top=(e.clientY-28)+'px';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',1200);
+}
+
+function mailPill(status,id){
+  const map={sent:['mail-sent','✉ Sent'],failed:['mail-failed','✉ Failed'],pending:['mail-pending','⏳ Pending']};
+  const[cls,lbl]=map[status]||map.pending;
+  const retry=status!=='sent'?'<button class="btn-retry" onclick="resend(\''+id+'\')">retry</button>':'';
+  return'<span class="mail-pill '+cls+'">'+lbl+'</span>'+retry;
+}
+
+function render(){
+  const q=(document.getElementById('srch')||{}).value?.toLowerCase()||'';
+  const rows=DB.filter(r=>r.name.toLowerCase().includes(q)||r.email.toLowerCase().includes(q)||r.sn.toLowerCase().includes(q)||r.course.toLowerCase().includes(q));
+  const tb=document.getElementById('tbody'),em=document.getElementById('empty');
+  if(!tb)return;
+  if(!rows.length){tb.innerHTML='';em.style.display='block';
+    document.getElementById('dbCount').textContent=DB.length?DB.length+' records (0 shown)':'0 records';return;}
+  em.style.display='none';
+  document.getElementById('dbCount').textContent=q?rows.length+' of '+DB.length+' records':DB.length+' record'+(DB.length!==1?'s':'');
+  tb.innerHTML=rows.map(r=>
+    '<tr>'+
+    '<td class="td-num">'+(DB.indexOf(r)+1)+'</td>'+
+    '<td class="td-name">'+esc(r.name)+'</td>'+
+    '<td class="td-email">'+esc(r.email)+'</td>'+
+    '<td><span class="sn-badge" onclick="copySN(\''+r.sn+'\',event)">'+r.sn+' <span class="copy-icon">⎘</span></span></td>'+
+    '<td style="font-size:11px;color:var(--muted)">'+esc(r.course)+'</td>'+
+    '<td><span class="status-pill status-'+r.status.toLowerCase()+'">'+r.status+'</span></td>'+
+    '<td>'+mailPill(r.mailStatus,r.id)+'</td>'+
+    '<td class="td-date">'+r.date+'</td>'+
+    '<td><button class="btn-del" onclick="delRec(\''+r.id+'\')">✕</button></td>'+
+    '</tr>'
+  ).join('');
+}
+
+function stats(){
+  if(!document.getElementById('sTotal'))return;
+  const today=new Date().toDateString();
+  document.getElementById('sTotal').textContent=DB.length;
+  document.getElementById('sActive').textContent=DB.filter(r=>r.status==='Active').length;
+  document.getElementById('sEmails').textContent=DB.filter(r=>r.mailStatus==='sent').length;
+  document.getElementById('sToday').textContent=DB.filter(r=>r.dateRaw===today).length;
+}
+
+function flash(msg,type){
+  const f=document.getElementById('flash');
+  f.textContent=msg;f.style.display='block';
+  const ok=type==='ok';
+  f.style.background=ok?'rgba(26,107,107,.22)':'rgba(192,57,43,.18)';
+  f.style.borderColor=ok?'var(--teal2)':'#e74c3c';
+  f.style.color=ok?'#7ee8e8':'#ff9999';
+  clearTimeout(f._t);f._t=setTimeout(()=>f.style.display='none',6000);
+}
+
+function exportCSV(){
+  if(!DB.length){alert('No records to export.');return;}
+  const hdr=['#','Full Name','Student Email','Serial Number','Course','Status','Email Status','Sent From','Date'];
+  const rows=DB.map((r,i)=>[i+1,'"'+r.name+'"',r.email,r.sn,'"'+r.course+'"',r.status,r.mailStatus,r.sender||'',r.date].join(','));
+  const blob=new Blob([[hdr.join(','),...rows].join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='SN_Registry_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+function save(){localStorage.setItem('snreg',JSON.stringify(DB));}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+document.getElementById('lEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lScript').focus();});
+document.getElementById('lScript').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+if(SESSION)showApp();
+</script>
+</body>
+</html>
